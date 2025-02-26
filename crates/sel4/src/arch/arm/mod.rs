@@ -30,7 +30,9 @@ pub(crate) use vspace::vspace_levels;
 pub const NUM_FAST_MESSAGE_REGISTERS: usize = u32_into_usize(sys::seL4_FastMessageRegisters);
 
 pub(crate) mod cap_type_arch {
-    use crate::{declare_cap_type_for_object_of_fixed_size, sel4_cfg};
+    use sel4_config::sel4_cfg_if;
+
+    use crate::{declare_cap_type, declare_cap_type_for_object_of_fixed_size, sel4_cfg};
 
     #[sel4_cfg(ARM_HYPERVISOR_SUPPORT)]
     declare_cap_type_for_object_of_fixed_size! {
@@ -77,6 +79,15 @@ pub(crate) mod cap_type_arch {
         PT { ObjectTypeArch, ObjectBlueprintArch }
     }
 
+    sel4_cfg_if! {
+        if #[sel4_cfg(ALLOW_SMC_CALLS)] {
+            declare_cap_type! {
+                /// Corresponds to `sel4_ARM_SMC`
+                Smc
+            }
+        }
+    }
+
     /// Alias for [`cap_type::SmallPage`](SmallPage).
     pub type Granule = SmallPage;
 
@@ -101,4 +112,7 @@ pub(crate) mod cap_arch {
     declare_cap_alias!(PD);
 
     declare_cap_alias!(PT);
+
+    #[sel4_cfg(ALLOW_SMC_CALLS)]
+    declare_cap_alias!(Smc);
 }

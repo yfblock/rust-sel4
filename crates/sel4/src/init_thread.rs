@@ -154,8 +154,8 @@ pub mod slot {
         (SMMU_CB_CONTROL, Null, seL4_CapSMMUCBControl),
         #[sel4_cfg(KERNEL_MCS)]
         (SC, SchedControl, seL4_CapInitThreadSC),
-        #[cfg(any())] // TODO
-        (SMC, Null, seL4_CapSMC),
+        #[sel4_cfg(ALLOW_SMC_CALLS)]
+        (SMC, Smc, seL4_CapSMC),
     ];
 }
 

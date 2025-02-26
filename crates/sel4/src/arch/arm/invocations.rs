@@ -67,6 +67,25 @@ impl<C: InvocationContext> VCpu<C> {
     }
 }
 
+#[sel4_cfg(ALLOW_SMC_CALLS)]
+impl<C: InvocationContext> Smc<C> {
+    pub fn smc_call(
+        self,
+        args: &sel4_sys::seL4_ARM_SMCContext,
+    ) -> Result<sel4_sys::seL4_ARM_SMCContext> {
+        let mut ctx = sel4_sys::seL4_ARM_SMCContext::default();
+        let ret = self.invoke(|cptr, ipc_buffer| {
+            ipc_buffer
+                .inner_mut()
+                .seL4_ARM_SMC_Call(cptr.bits() as _, args, &mut ctx)
+        });
+        match Error::from_sys(ret) {
+            None => Ok(ctx),
+            Some(err) => Err(err),
+        }
+    }
+}
+
 impl<T: CapTypeForFrameObject, C: InvocationContext> Cap<T, C> {
     /// Corresponds to `seL4_ARM_Page_Map`.
     pub fn frame_map(
